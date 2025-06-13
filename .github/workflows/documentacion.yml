@@ -1,0 +1,41 @@
+name: Compila y Genera PDF
+
+on:
+  push:
+
+jobs:
+  compila:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Tener copia local del repo
+        uses: actions/checkout@v4.2.2
+      - name: Instalar .NET en el runner
+        uses: actions/setup-dotnet@v4
+        with:
+          # Optional SDK version(s) to use. If not provided, will install global.json version when available. Examples: 2.2.104, 3.1, 3.1.x, 3.x, 6.0.2xx
+          dotnet-version: '9.0.X'
+      - name: Instalar dependencias
+        run: dotnet restore
+      - name: Compiler
+        run: dotnet build --no-restore
+
+  converttopdf:
+    name: Build PDF
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: baileyjm02/markdown-to-pdf@v1
+        with:
+          input_dir: docs
+          output_dir: pdfs
+          images_dir: docs/images
+          # for example <img src="./images/file-name.png">
+          image_import: ./images
+          # Default is true, can set to false to only get PDF files
+          build_html: false
+      - uses: actions/upload-artifact@v3
+        with:
+          name: docs
+          path: pdfs
+      
